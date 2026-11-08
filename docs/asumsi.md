@@ -28,3 +28,9 @@ Salin setiap pertanyaan ambigu (nomor 1 sampai 7) ke sini dan jawab. Contoh:
 ## Asumsi lain
 
 Tambahkan di sini keputusan lain yang Anda ambil: rumus denda progresif, perubahan skema database, format error API, dan seterusnya.
+
+## Minggu 5: Rumus DendaProgresif
+- Hari 1 sampai 7: sama dengan denda flat.
+- Setelah hari ke-7: denda = flat + flat * (hari - 7) / 7.
+- Alasan: sederhana, memenuhi semua syarat tes (0 hari = 0, tidak lebih murah dari flat,
+  tidak turun, hari ke-30 lebih mahal dari flat), dan hanya bergantung pada hitungDenda().
