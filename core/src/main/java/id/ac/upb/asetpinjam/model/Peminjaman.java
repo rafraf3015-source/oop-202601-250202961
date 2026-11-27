@@ -1,12 +1,39 @@
 package id.ac.upb.asetpinjam.model;
 
+import static id.ac.upb.asetpinjam.model.StatusPeminjaman.DIAJUKAN;
+import static id.ac.upb.asetpinjam.model.StatusPeminjaman.DIBATALKAN;
+import static id.ac.upb.asetpinjam.model.StatusPeminjaman.DIKEMBALIKAN;
+import static id.ac.upb.asetpinjam.model.StatusPeminjaman.DIPINJAM;
+import static id.ac.upb.asetpinjam.model.StatusPeminjaman.DISETUJUI;
+import static id.ac.upb.asetpinjam.model.StatusPeminjaman.DITOLAK;
+import static id.ac.upb.asetpinjam.model.StatusPeminjaman.TERLAMBAT;
+
+import id.ac.upb.asetpinjam.exception.StatusTidakSahException;
 import java.time.LocalDateTime;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Satu pengajuan peminjaman aset oleh seorang peminjam pada rentang waktu tertentu.
  * Konstruktor dan getter DISEDIAKAN dosen. Anda mengerjakan ubahStatus (minggu 9).
  */
 public class Peminjaman {
+
+    /** Perpindahan status yang sah (docs/aturan-bisnis.md). Status akhir punya himpunan kosong. */
+    private static final Map<StatusPeminjaman, Set<StatusPeminjaman>> PERPINDAHAN_SAH =
+            new EnumMap<>(StatusPeminjaman.class);
+
+    static {
+        PERPINDAHAN_SAH.put(DIAJUKAN, EnumSet.of(DISETUJUI, DITOLAK));
+        PERPINDAHAN_SAH.put(DISETUJUI, EnumSet.of(DIPINJAM, DIBATALKAN));
+        PERPINDAHAN_SAH.put(DIPINJAM, EnumSet.of(DIKEMBALIKAN, TERLAMBAT));
+        PERPINDAHAN_SAH.put(TERLAMBAT, EnumSet.of(DIKEMBALIKAN));
+        PERPINDAHAN_SAH.put(DITOLAK, EnumSet.noneOf(StatusPeminjaman.class));
+        PERPINDAHAN_SAH.put(DIBATALKAN, EnumSet.noneOf(StatusPeminjaman.class));
+        PERPINDAHAN_SAH.put(DIKEMBALIKAN, EnumSet.noneOf(StatusPeminjaman.class));
+    }
 
     private final String id;
     private final Peminjam peminjam;
@@ -59,10 +86,16 @@ public class Peminjaman {
     }
 
     /**
-     * TODO minggu 9: pindahkan ke status baru hanya jika perpindahan sah menurut
-     * docs/aturan-bisnis.md. Jika tidak sah, lempar StatusTidakSahException (dengan pesan jelas).
+     * Pindah ke status baru hanya jika perpindahan sah menurut docs/aturan-bisnis.md.
+     * Jika tidak sah, melempar StatusTidakSahException dan status TIDAK berubah.
      */
     public void ubahStatus(StatusPeminjaman baru) {
-        throw new UnsupportedOperationException("TODO minggu 9: Peminjaman.ubahStatus");
+        if (baru == null) {
+            throw new IllegalArgumentException("status baru tidak boleh null");
+        }
+        if (!PERPINDAHAN_SAH.get(status).contains(baru)) {
+            throw new StatusTidakSahException(status, baru);
+        }
+        this.status = baru;
     }
 }
